@@ -5,10 +5,9 @@ PORT = 5050
 SERVER = "192.168.0.16"
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "BYE"
+DISCONNECT_MESSAGE = "END"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(ADDR)
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -19,8 +18,8 @@ def send(msg):
     sock.send(message)
     print(sock.recv(2048).decode(FORMAT))
 
-send("Hello World!")
-input()
-send("Testing!")
-input()
-send(DISCONNECT_MESSAGE)
+def __main__():
+    sock.connect(ADDR)
+
+
+__main__()

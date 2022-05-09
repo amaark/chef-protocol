@@ -6,29 +6,45 @@ PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "BYE"
+DISCONNECT_MESSAGE = "END"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+usernames = ["Amaar", "Nirmal", "Robyn", "Patrick"]
+blacklist = []
+
+
+def get_message(conn):
+    msg_length = conn.recv(HEADER).decode(FORMAT)
+    if msg_length: # Check that message received is valid before decoding
+        msg_length = int(msg_length)
+        msg = conn.recv(msg_length).decode(FORMAT)
+        return msg
+
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} has connected.")
-
     live = True
     while live:
-        msg_length = conn.recv(HEADER).decode(FORMAT)
-        if msg_length: # Check that message received is valid before decoding
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            if msg == DISCONNECT_MESSAGE:
-                live = False
-
-            print(f"[{addr}] {msg}")
-            conn.send("Message received".encode(FORMAT))
-
+        send_to_client("Please authenticate with AUTH <username>")
+        msg = get_message(conn)
+        msg = msg.strip()
+        user = msg[4:].strip()
+        if msg[:4] == "AUTH" and user in usernames:
+            console_message(addr, msg)
+            send_to_client(f"Successfully authenticated, hello {user}!")
+            live = False
     print(f"[DISCONNECTING] {addr}")
     conn.close()
+
+
+def console_message(addr, msg):
+    print(f"[{addr}] {msg}")
+
+
+def send_to_client(conn, msg):
+    conn.send(msg.encode(FORMAT))
 
 
 def start():
@@ -41,5 +57,9 @@ def start():
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
-print("[STARTING] Starting the server...")
-start()
+def __main__():
+    print("[STARTING] Starting the server...")
+    start()
+
+
+__main__()
