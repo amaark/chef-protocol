@@ -2,7 +2,7 @@ import socket
 
 HEADER = 10
 PORT = 5050
-SERVER = "192.168.0.16"
+SERVER = "192.168.0.16" # Change this to server IP
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "END"
@@ -20,6 +20,9 @@ def send(msg):
 
 def __main__():
     sock.connect(ADDR)
+    live = True
+    while live == True:
+        send(input())
 
 
 __main__()

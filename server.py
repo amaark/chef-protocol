@@ -27,14 +27,18 @@ def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} has connected.")
     live = True
     while live:
-        send_to_client("Please authenticate with AUTH <username>")
-        msg = get_message(conn)
-        msg = msg.strip()
-        user = msg[4:].strip()
-        if msg[:4] == "AUTH" and user in usernames:
-            console_message(addr, msg)
-            send_to_client(f"Successfully authenticated, hello {user}!")
-            live = False
+        send_to_client(conn, "Please authenticate with AUTH <username>")
+        msg_length = conn.recv(HEADER).decode(FORMAT)
+        if msg_length: # Check that message received is valid before decoding
+            msg_length = int(msg_length)
+            msg = conn.recv(msg_length).decode(FORMAT)
+            msg = msg.strip()
+            user = msg[4:].strip()
+            if msg[:4] == "AUTH" and user in usernames:
+                console_message(addr, msg)
+                send_to_client(conn, f"Successfully authenticated, hello {user}!")
+                live = False
+
     print(f"[DISCONNECTING] {addr}")
     conn.close()
 
